@@ -1,0 +1,25 @@
+Organização
+
+- Há classes mais genêricas que serão herdadas.
+- Caso um determinado método seja específico para cada um, utilize interface.
+Ex.:
+Há uma classe Pirata, a classe Luffy a herda, assim como seus outros membros.
+Entretanto, cada membro tem uma função. Luffy é capitão, seria ideal fazer
+uma interface de Capitão com os métodos e atributos que o fazem ser capitão.
+
+- Detalhe que não testei.
+
+Imagina que uma classe criada Navio só consiga aceitar no método de adiciona ao Navio
+um parâmetro do tipo objeto Pirata. A classe Luffy não é Pirata, mas a herda, então,
+mesmo sendo outra classe, contanto que a herde é possível passá-lo no parâmetro.
+
+public class Navio{
+	public void adicionarAoNavio(Pirata p){
+		membros.add(p)
+	}
+}
+
+Na instância
+
+Navio navioChapeuPalha = new Navio();
+navioChapeuPalha.adicionarAoNavio(monkeyluffy);//outra classe

@@ -1,0 +1,82 @@
+anime_naruto
+
+Fazer um teste de poo utilizando o anime Naruto como base para a aplicação.
+
+1º - Classe Pessoa
+
+Essa classe abstrata foi feita para ser herdada por outras. Contém
+os atributos nome e idade e mostrar que é possível acessa-los por meio
+de outra classe(Ninja). Claro, por ser abstrata, não é possível instanciar.
+Terá um construtor e outra herdar, terá que colocar também no seu construtor,
+a diferença é que não terá que fazer os getter e setter já que Ninja, por herdar,
+terá acesso, assim como os objetos instanciados por ele.
+
+2º Classe Ninja
+A principal, deveria ter uma de pessoas normais, mas fui simples neste exemplo.
+Possui 3 atributos do tipo String; pense, cada Ninja tem um clã, vila e técnica principal,
+que na hora de instanciar terá que informar.
+Criei um ArrayList do tipo que só recebe String para personagens que há várias técnicas;
+técnica principal também será armazenado;
+
+Outra coisa deste teste é a habilidade de trabalhar com Tipo ArrayList, como usar
+get e set com ele.
+
+O get retorna a variável que está armazenando o ArrayList, aí se você quiser a técnica
+específica, pode usar o próprio método get do ArrayList<>, pois se só usar o método, vai retornar
+o array inteiro.
+    Ex.: Naruto.getTecnicas().get(2);
+
+Agora o set, ele atualiza a lista toda;
+
+Eu implementei a interface, mas só foi para testa o Override, já que se
+que seu quisesse adicionar técnicas dentro do Array, bastava fazer dentro
+de Ninja, mas utilizei uma interface só por testar mesmo.
+
+3º Classe Time
+
+Essa armazenará os objetos de Ninja e os agrupará em times. 
+
+Há um atributo time que é um ArrayList de Ninja.Perceba, só aceita
+objetos tipo Ninja. Ele servirá para testar como utilizar o for-each e puxar informações
+com métodos de Pessoa, por exemplo, mesmo que Time não herde, mas a variável que entra
+dentro do loop, sim, então é possível pegar o nome dentro de Time.
+
+
+EXPLICAÇÃO 
+
+Dentro do laço for, você está usando a seguinte construção:
+
+java
+for (Ninja ninja : time_sete.getTime()) {
+    System.out.print(ninja.getNome() + " ");
+}
+
+Vamos ver passo a passo como isso funciona:
+
+Declaração da variável:
+
+__________________________
+for (Ninja ninja : time_sete.getTime())
+_________________________
+
+---time_sete.getTime() retorna um ArrayList<Ninja>, que é a lista de objetos Ninja armazenados no objeto time_sete.
+---Ninja ninja é uma variável temporária usada para iterar sobre cada elemento da lista.
+
+
+Iteração sobre os objetos:
+A cada iteração do laço, a variável ninja é atribuída a um dos objetos Ninja armazenados na lista.
+Como ninja é do tipo Ninja, você tem acesso a todos os métodos e atributos definidos na classe Ninja. Isso inclui o método getNome() já que ele herda de Pessoa.
+
+Chamando métodos de Ninja:
+
+Dentro do corpo do laço, você pode chamar qualquer método de Ninja usando a variável ninja.
+No exemplo, ninja.getNome() é usado para obter o nome do ninja atual na iteração.
+
+Aqui está uma visualização do que acontece:
+
+Primeira iteração: ninja referencia o primeiro objeto Ninja (por exemplo, Naruto). Você pode chamar ninja.getNome(), que retorna "Naruto".
+Segunda iteração: ninja referencia o segundo objeto Ninja (por exemplo, Sasuke). Você pode chamar ninja.getNome(), que retorna "Sasuke".
+Terceira iteração: ninja referencia o terceiro objeto Ninja (por exemplo, Sakura). Você pode chamar ninja.getNome(), que retorna "Sakura".
+
+Essa estrutura permite que você acesse e use métodos da classe Ninja para cada objeto armazenado na lista time.
+
