@@ -42,7 +42,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
         );
         abaComprasLayout.setVerticalGroup(
             abaComprasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 396, Short.MAX_VALUE)
+            .addGap(0, 408, Short.MAX_VALUE)
         );
 
         jMenu1.setText("Cadastro");
@@ -70,9 +70,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(abaCompras)
-                .addContainerGap())
+            .addComponent(abaCompras, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         pack();
