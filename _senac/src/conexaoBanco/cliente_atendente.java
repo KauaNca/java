@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package conexaoBanco;
+package _senac.conexaoBanco;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -77,7 +77,8 @@ public class cliente_atendente extends javax.swing.JFrame {
         salario = new javax.swing.JTextField();
         jScrollPane2 = new javax.swing.JScrollPane();
         tabelaPessoa = new javax.swing.JTable();
-        jTextField1 = new javax.swing.JTextField();
+        pesquisa = new javax.swing.JTextField();
+        Pesquisar = new javax.swing.JButton();
 
         tabelaCliente.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -146,7 +147,12 @@ public class cliente_atendente extends javax.swing.JFrame {
         ));
         jScrollPane2.setViewportView(tabelaPessoa);
 
-        jTextField1.setText("jTextField1");
+        Pesquisar.setText("Pesquisar");
+        Pesquisar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                PesquisarMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -201,7 +207,11 @@ public class cliente_atendente extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 61, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 453, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(48, 48, 48)
+                                .addComponent(pesquisa, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(Pesquisar))))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -244,8 +254,10 @@ public class cliente_atendente extends javax.swing.JFrame {
                         .addComponent(btCadastrar)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(pesquisa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Pesquisar))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(63, 63, 63))))
@@ -321,13 +333,12 @@ public class cliente_atendente extends javax.swing.JFrame {
 
                 ps2.execute();
                 System.out.println("INSERÇÃO COMPLETA DE CLIENTE");
-                
+
                 rs.close();
                 ps3.close();
                 ps2.close();
                 conexaoAtiva.close();
 
-                
             } else {
                 String SQL2 = "INSERT INTO atendente(matricula,salario,situacao,id_pessoa) VALUES(?,?,?,?);";
                 PreparedStatement ps2 = conexaoAtiva.prepareStatement(SQL2);
@@ -346,13 +357,12 @@ public class cliente_atendente extends javax.swing.JFrame {
                 }
                 ps2.execute();
                 System.out.println("INSERÇÃO COMPLETA DE FUNCIONÁRIO");
-                
+
                 rs.close();
                 ps3.close();
                 ps2.close();
                 conexaoAtiva.close();
 
-             
             }
 
         } catch (SQLException ex) {
@@ -360,8 +370,32 @@ public class cliente_atendente extends javax.swing.JFrame {
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(cliente_atendente.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }//GEN-LAST:event_btCadastrarActionPerformed
+
+    private void PesquisarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PesquisarMouseClicked
+        try (Connection conexaoAtiva = Conexao.conexaoBanco();
+     PreparedStatement ps = conexaoAtiva.prepareStatement("SELECT nome, tipo FROM pessoa WHERE nome LIKE ? ORDER BY nome DESC LIMIT 1")) {
+    
+    DefaultTableModel modeloTabela = (DefaultTableModel) tabelaPessoa.getModel();
+    modeloTabela.setNumRows(0);
+    
+    ps.setString(1, "%" + pesquisa.getText() + "%");
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            Object[] dados = {
+                rs.getString("nome"),
+                rs.getString("tipo")
+            };
+            modeloTabela.addRow(dados);
+        }
+    }
+} catch (SQLException e) {
+    System.out.println("ERRO NA CONEXAO DE PESQUISA: " + e.getMessage());
+}        catch (ClassNotFoundException ex) {
+            Logger.getLogger(cliente_atendente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_PesquisarMouseClicked
 
     /**
      * @param args the command line arguments
@@ -400,6 +434,7 @@ public class cliente_atendente extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton Pesquisar;
     private javax.swing.JButton btCadastrar;
     private javax.swing.JTextField cpf;
     private javax.swing.JTextField email;
@@ -408,7 +443,6 @@ public class cliente_atendente extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel lbcpf;
     private javax.swing.JLabel lbemail;
     private javax.swing.JLabel lbmatricula;
@@ -416,6 +450,7 @@ public class cliente_atendente extends javax.swing.JFrame {
     private javax.swing.JLabel lbtelefone;
     private javax.swing.JTextField matricula;
     private javax.swing.JTextField nome;
+    private javax.swing.JTextField pesquisa;
     private javax.swing.JRadioButton rbCliente;
     private javax.swing.JRadioButton rbFuncionario;
     private javax.swing.JTextField salario;
