@@ -2,7 +2,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package _senac.conexaoBanco;
+package conexaoBanco;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -10,17 +11,24 @@ import java.util.logging.Logger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Kaua33500476
  */
 public class produto extends javax.swing.JFrame {
+
     String situacaoA;
+    DefaultTableModel modeloTabela;
+    String categoriaA;
+
     /**
      * Creates new form produto
      */
     public produto() {
         initComponents();
+        modeloTabela = (DefaultTableModel) tabela.getModel();
+
     }
 
     /**
@@ -48,6 +56,8 @@ public class produto extends javax.swing.JFrame {
         situacao = new javax.swing.JComboBox<>();
         categoria = new javax.swing.JComboBox<>();
         btAtualizar = new javax.swing.JButton();
+        preencher = new javax.swing.JButton();
+        limpar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -86,6 +96,11 @@ public class produto extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tabela.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tabelaMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tabela);
 
         situacao.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Disponível", "Bloqueado", "Indisponível" }));
@@ -96,6 +111,20 @@ public class produto extends javax.swing.JFrame {
         btAtualizar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 btAtualizarMouseClicked(evt);
+            }
+        });
+
+        preencher.setText("PREENCHER");
+        preencher.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                preencherMouseClicked(evt);
+            }
+        });
+
+        limpar.setText("LIMPAR");
+        limpar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                limparMouseClicked(evt);
             }
         });
 
@@ -124,13 +153,16 @@ public class produto extends javax.swing.JFrame {
                             .addComponent(categoria, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(descricao, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(74, 74, 74)
+                        .addContainerGap()
                         .addComponent(cadastrar)
                         .addGap(18, 18, 18)
-                        .addComponent(btAtualizar)))
-                .addGap(182, 182, 182)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(36, Short.MAX_VALUE))
+                        .addComponent(btAtualizar)
+                        .addGap(18, 18, 18)
+                        .addComponent(preencher)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(limpar)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 88, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -164,11 +196,11 @@ public class produto extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(cadastrar)
-                            .addComponent(btAtualizar)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(btAtualizar)
+                            .addComponent(preencher)
+                            .addComponent(limpar)))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -180,46 +212,45 @@ public class produto extends javax.swing.JFrame {
             String comandoSQL = "INSERT INTO produto(codigo,descricao,preco,situacao,id_categoria,quantidade_estoque) VALUES(?,?,?,?,(SELECT id_categoria FROM categoria WHERE descricao = ?),?);";
             PreparedStatement stmt = conexaoAtiva.prepareStatement(comandoSQL);
             stmt.setString(1, codigo.getText());
-            stmt.setString(2,descricao.getText());
-            stmt.setString(3,preco.getText());
-            stmt.setString(4,String.valueOf(situacao.getSelectedItem()));
-            stmt.setString(5,String.valueOf(categoria.getSelectedItem()));
+            stmt.setString(2, descricao.getText());
+            stmt.setString(3, preco.getText());
+            stmt.setString(4, String.valueOf(situacao.getSelectedItem()));
+            stmt.setString(5, String.valueOf(categoria.getSelectedItem()));
             stmt.setInt(6, Integer.parseInt(quantidade.getText()));
             stmt.execute();
             stmt.close();
-            
+
             System.out.println("Produto inserido");
-            
+
             String sql = "SELECT * FROM produto";
             PreparedStatement stm = conexaoAtiva.prepareStatement(sql);
-            DefaultTableModel modeloTabela = (DefaultTableModel) tabela.getModel();
+
             modeloTabela.setNumRows(0);
             ResultSet rs = stm.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 Object[] dados = {
-                  rs.getInt("id_produto"),
-                  rs.getString("codigo"),
-                  rs.getString("descricao"),
-                  rs.getInt("preco"),
-                  rs.getString("situacao"),
-                  rs.getInt("id_categoria"),
-                  rs.getInt("quantidade_estoque")
-                  
-                };
-            
-             modeloTabela.addRow(dados);
-            }
-           rs.close();
-           stm.close();
-           conexaoAtiva.close();
-           codigo.setText(null);
-           descricao.setText(null);
-           preco.setText(null);
-           
-          categoria.setSelectedItem(null);
-           quantidade.setText(null);
+                    rs.getInt("id_produto"),
+                    rs.getString("codigo"),
+                    rs.getString("descricao"),
+                    rs.getInt("preco"),
+                    rs.getString("situacao"),
+                    rs.getInt("id_categoria"),
+                    rs.getInt("quantidade_estoque")
 
-                    
+                };
+
+                modeloTabela.addRow(dados);
+            }
+            rs.close();
+            stm.close();
+            conexaoAtiva.close();
+            codigo.setText(null);
+            descricao.setText(null);
+            preco.setText(null);
+
+            categoria.setSelectedItem(null);
+            quantidade.setText(null);
+
         } catch (SQLException ex) {
             Logger.getLogger(produto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
@@ -228,14 +259,121 @@ public class produto extends javax.swing.JFrame {
     }//GEN-LAST:event_cadastrarMouseClicked
 
     private void btAtualizarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btAtualizarMouseClicked
-        try(Connection conexaoAtiva = Conexao.conexaoBanco()){
-            String SQL = "UPDATE produto SET codigo = ?,descricao = ?,preco = ?, situacao";
+        try (Connection conexao = Conexao.conexaoBanco()) {
+            String SQL = "UPDATE produto SET codigo = ?,descricao = ?,preco = ?, situacao = ?,"
+                    + "quantidade_estoque = ? WHERE id_produto = ?";
+            PreparedStatement ps = conexao.prepareStatement(SQL);
+            ps.setString(1,codigo.getText());
+            ps.setString(2, descricao.getText());
+            ps.setString(3, preco.getText());
+            ps.setString(4,String.valueOf(situacao.getSelectedItem()));
+            ps.setString(5,quantidade.getText());
+            ps.setString(6,tabela.getValueAt(tabela.getSelectedRow(),0).toString());
+            ps.executeUpdate();
+            ps.close();
+            conexao.close();
         } catch (SQLException ex) {
-            System.out.println("ERRO NA CONEXÃO AO ATUALIZAR");
+            Logger.getLogger(produto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
-            System.out.println("ERRO NO DRIVER AO ATUALIZAR");
+            Logger.getLogger(produto.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }//GEN-LAST:event_btAtualizarMouseClicked
+
+    private void tabelaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaMouseClicked
+        try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
+            codigo.setText(tabela.getValueAt(tabela.getSelectedRow(), 1).toString());
+            descricao.setText(tabela.getValueAt(tabela.getSelectedRow(), 2).toString());
+            preco.setText(tabela.getValueAt(tabela.getSelectedRow(), 3).toString());
+            situacaoA = (tabela.getValueAt(tabela.getSelectedRow(), 4).toString());
+            if (situacaoA.equals("Disponível")) {
+                situacao.setSelectedItem("Disponível");
+            } else if (situacaoA.equals("Bloqueado")) {
+                situacao.setSelectedItem("Bloqueado");
+            } else if (situacaoA.equals("Inativo")) {
+                situacao.setSelectedItem("Inativo");
+            }
+            quantidade.setText(tabela.getValueAt(tabela.getSelectedRow(), 6).toString());
+            categoriaA = (tabela.getValueAt(tabela.getSelectedRow(), 5).toString());
+            switch (categoriaA) {
+                case "1":
+                    categoria.setSelectedItem("Alimentos e Bebidas");
+                    break;
+                case "2":
+                    categoria.setSelectedItem("Vesturário e Acessórios");
+                    break;
+                case "3":
+                    categoria.setSelectedItem("Eletrônicos e Eletrodomésticos");
+                    break;
+                case "4":
+                    categoria.setSelectedItem("Saúde e Beleza");
+                    break;
+                case "5":
+                    categoria.setSelectedItem("Casa e Decoração");
+                    break;
+                case "6":
+                    categoria.setSelectedItem("Esportes e Lazer");
+                    break;
+                case "7":
+                    categoria.setSelectedItem("Automotivo");
+                    break;
+                case "8":
+                    categoria.setSelectedItem("Tecnologia e Informática");
+                    break;
+                case "9":
+                    categoria.setSelectedItem("Móveis");
+                    break;
+                case "10":
+                    categoria.setSelectedItem("Brinquedos e Jogos");
+                    break;
+            }
+            conexaoAtiva.close();
+
+        } catch (SQLException ex) {
+            System.out.println("ERRO NA CONEXÃO DA TABELA");
+        } catch (ClassNotFoundException ex) {
+            System.out.println("ERRO NO DRIVER DA TABELA");
+        }
+    }//GEN-LAST:event_tabelaMouseClicked
+
+    private void preencherMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_preencherMouseClicked
+        Connection conexao;
+        try {
+            conexao = Conexao.conexaoBanco();
+            modeloTabela.setNumRows(0);
+            String SQL = "SELECT * FROM produto";
+            PreparedStatement ps = conexao.prepareStatement(SQL);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Object[] dados = {
+                    rs.getInt("id_produto"),
+                    rs.getString("codigo"),
+                    rs.getString("descricao"),
+                    rs.getInt("preco"),
+                    rs.getString("situacao"),
+                    rs.getInt("id_categoria"),
+                    rs.getInt("quantidade_estoque")
+
+                };
+
+                modeloTabela.addRow(dados);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(produto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(produto.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_preencherMouseClicked
+
+    private void limparMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_limparMouseClicked
+    codigo.setText(null);
+            descricao.setText(null);
+            preco.setText(null);
+
+            categoria.setSelectedItem(null);
+            quantidade.setText(null);        
+    }//GEN-LAST:event_limparMouseClicked
 
     /**
      * @param args the command line arguments
@@ -285,7 +423,9 @@ public class produto extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton limpar;
     private javax.swing.JTextField preco;
+    private javax.swing.JButton preencher;
     private javax.swing.JTextField quantidade;
     private javax.swing.JComboBox<String> situacao;
     private javax.swing.JTable tabela;
