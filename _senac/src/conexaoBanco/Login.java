@@ -121,7 +121,7 @@ public class Login extends javax.swing.JFrame {
                 senha = rs.getString("senha");
             }
             if (nome != null || senha != null) {
-                pagina_inicial pi = new pagina_inicial();
+                Pagina_inicial pi = new Pagina_inicial();
                 pi.setVisible(true);
                 dispose();
 
