@@ -16,7 +16,7 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Kaua33500476
  */
-public class cliente_atendente extends javax.swing.JInternalFrame {
+public class cliente_atendente extends javax.swing.JFrame {
 
     String situacao = "Ativo";
     String tipo;
@@ -44,7 +44,7 @@ public class cliente_atendente extends javax.swing.JInternalFrame {
         lbmatricula.setVisible(false);
         lbsalario.setVisible(false);
         
-        setClosable(true);
+       
         
 
     }
@@ -101,7 +101,7 @@ public class cliente_atendente extends javax.swing.JInternalFrame {
         });
         jScrollPane1.setViewportView(tabelaCliente);
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jLabel1.setText("Nome");
 
@@ -150,6 +150,12 @@ public class cliente_atendente extends javax.swing.JInternalFrame {
         ));
         jScrollPane2.setViewportView(tabelaPessoa);
 
+        pesquisa.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                pesquisaKeyPressed(evt);
+            }
+        });
+
         Pesquisar.setText("Pesquisar");
         Pesquisar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -173,9 +179,7 @@ public class cliente_atendente extends javax.swing.JInternalFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(lbmatricula))
+                                    .addComponent(lbmatricula, javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(lbemail, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(1, 1, 1))
@@ -378,6 +382,10 @@ public class cliente_atendente extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btCadastrarActionPerformed
 
     private void PesquisarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PesquisarMouseClicked
+        
+    }//GEN-LAST:event_PesquisarMouseClicked
+
+    private void pesquisaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_pesquisaKeyPressed
         try (Connection conexaoAtiva = Conexao.conexaoBanco();
      PreparedStatement ps = conexaoAtiva.prepareStatement("SELECT nome, tipo FROM pessoa WHERE nome LIKE ? ORDER BY nome DESC LIMIT 1")) {
     
@@ -399,7 +407,7 @@ public class cliente_atendente extends javax.swing.JInternalFrame {
 }        catch (ClassNotFoundException ex) {
             Logger.getLogger(cliente_atendente.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_PesquisarMouseClicked
+    }//GEN-LAST:event_pesquisaKeyPressed
 
     /**
      * @param args the command line arguments
