@@ -25,6 +25,7 @@ public class Login extends javax.swing.JFrame {
      */
     public Login() {
         initComponents();
+        setExtendedState(MAXIMIZED_BOTH);
     }
 
     /**
@@ -111,20 +112,23 @@ public class Login extends javax.swing.JFrame {
 
     private void btEntrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btEntrarMouseClicked
         try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
-            String comandoSQL = "SELECT usuario = ?,senha = ? FROM login;";
+            String comandoSQL = "SELECT usuario, senha FROM login WHERE usuario = ? AND senha = ?;";
             PreparedStatement ps = conexaoAtiva.prepareStatement(comandoSQL);
             ps.setString(1, usuario.getText());
             ps.setString(2, campoSenha.getText());
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
+            
+            if (rs.next()) {
                 nome = rs.getString("usuario");
                 senha = rs.getString("senha");
-            }
-            if (nome != null || senha != null) {
-                Pagina_inicial pi = new Pagina_inicial();
-                pi.setVisible(true);
+                
+                PaginaInicial p1 = new PaginaInicial();
+                p1.setVisible(true);
                 dispose();
 
+            }
+            else{
+                System.out.println("CAMPO ELSE");
             }
 
         } catch (SQLException ex) {
