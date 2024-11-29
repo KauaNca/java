@@ -35,6 +35,8 @@ public class PaginaInicial extends javax.swing.JFrame {
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
         adicionar = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
+        compra = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -64,6 +66,18 @@ public class PaginaInicial extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu2);
 
+        jMenu3.setText("Venda");
+
+        compra.setText("Compra");
+        compra.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                compraActionPerformed(evt);
+            }
+        });
+        jMenu3.add(compra);
+
+        jMenuBar1.add(jMenu3);
+
         setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -92,6 +106,12 @@ public class PaginaInicial extends javax.swing.JFrame {
         painel.add(c);
         c.setVisible(true);
     }//GEN-LAST:event_adicionarActionPerformed
+
+    private void compraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compraActionPerformed
+        Venda v = new Venda();
+        painel.add(v);
+        v.setVisible(true);
+    }//GEN-LAST:event_compraActionPerformed
 
     /**
      * @param args the command line arguments
@@ -130,8 +150,10 @@ public class PaginaInicial extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem adicionar;
+    private javax.swing.JMenuItem compra;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JDesktopPane painel;
     // End of variables declaration//GEN-END:variables
