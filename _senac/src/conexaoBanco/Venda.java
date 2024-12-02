@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -35,7 +36,7 @@ public class Venda extends javax.swing.JInternalFrame {
      * Creates new form Venda
      */
     public Venda() {
-        tabela2 = (DefaultTableModel) tabelaVenda.getModel();
+       
         initComponents();
         try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
             String comandoSQL = "SELECT * FROM produto";
@@ -60,14 +61,14 @@ public class Venda extends javax.swing.JInternalFrame {
             System.out.println("ERRO BANCO DE DADOS - FRAME VENDA" + e.getMessage());
         }
         // Adicionar TableModelListener para detectar alterações na tabela de vendas
-        tabela2.addTableModelListener(new TableModelListener() {
+        /*tabela2.addTableModelListener(new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent e) {
                 if (e.getColumn() == 3 && e.getType() == TableModelEvent.UPDATE) {
                     recalcularTotalBruto();
                 }
             }
-        });
+        });*/
     }
 
     /**
@@ -146,11 +147,11 @@ public class Venda extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "Produto", "Preço", "Cancelado", "Quantidade"
+                "Produto", "Preço", "Cancelado", "Quantidade", "Total"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, true, true
+                false, false, true, true, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -160,11 +161,6 @@ public class Venda extends javax.swing.JInternalFrame {
         tabelaVenda.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tabelaVendaMouseClicked(evt);
-            }
-        });
-        tabelaVenda.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                tabelaVendaPropertyChange(evt);
             }
         });
         jScrollPane2.setViewportView(tabelaVenda);
@@ -363,6 +359,7 @@ public class Venda extends javax.swing.JInternalFrame {
                 };
                 tabela.addRow(dados);
             }
+            recalcularTotalBruto();
 
         } catch (SQLException e) {
             System.out.println("Campo de pesquisa - erro");
@@ -374,27 +371,31 @@ public class Venda extends javax.swing.JInternalFrame {
     private void tabelaProdutoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaProdutoMouseClicked
         if (evt.getClickCount() >= 2) {
             tabela2 = (DefaultTableModel) tabelaVenda.getModel();
-            int quantidade = 1;
+            String quantidade = JOptionPane.showInputDialog("Quantidade");
+            preco = tabelaProduto.getValueAt(tabelaProduto.getSelectedRow(), 2).toString();
+           Float total = Float.parseFloat(preco) * Integer.parseInt(quantidade);
             Object[] dados = {
                 produto = tabelaProduto.getValueAt(tabelaProduto.getSelectedRow(), 1).toString(),
-                preco = tabelaProduto.getValueAt(tabelaProduto.getSelectedRow(), 2).toString(),
+                preco,
                 cancelado = "N",
-                quantidade
+                quantidade,
+                String.valueOf(total)
             };
             tabela2.addRow(dados);
+            recalcularTotalBruto();
 
-            Float precoLoop = 0f;
+            /*Float precoLoop = 0f;
             Float quantidadeLoop = 0f;
             Float multi = 0f;
             acumulador = 0f;  // Iniciar o acumulador em 0
 
-            for (int x = 0; x < tabelaVenda.getRowCount(); x++) {
+            for (int x = 1; x < tabelaVenda.getRowCount(); x++) {
                 precoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString());
                 quantidadeLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString());  // Corrigido índice de quantidade
                 multi = precoLoop * quantidadeLoop;
                 acumulador += multi;
             }
-            totalBruto.setText(String.valueOf(acumulador));
+            totalBruto.setText(String.valueOf(acumulador));*/
         }
 
 
@@ -405,7 +406,24 @@ public class Venda extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_cancelarVendaActionPerformed
 
     private void confirmarVendaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_confirmarVendaMouseClicked
-
+        try(Connection conexaoAtiva = Conexao.conexaoBanco()){
+            String preco = null;
+            String quantidade = null;
+            String comandoSQL = "INSERT INTO item_venda(quantidade,desconto,acrescimo,id_produto,id_venda) VALUES (?,0,0,(SELECT id_produto FROM produto descricao = ?),?);";
+            PreparedStatement stmt = conexaoAtiva.prepareStatement(comandoSQL);
+            for(int x = 0;x<tabelaVenda.getRowCount();x++){
+                stmt.setString(1,tabelaVenda.getValueAt(x,3).toString());
+                stmt.setString(2,tabelaVenda.getValueAt(x,1).toString());
+                stmt.setString(3,"?");
+            }
+            String comandoSQL2 = "SELECT i";
+            PreparedStatement ps = conexaoAtiva.prepareStatement(comandoSQL2);
+           
+        } catch (SQLException ex) {
+            Logger.getLogger(Venda.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Venda.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_confirmarVendaMouseClicked
 
     private void clientePesquisarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_clientePesquisarKeyPressed
@@ -440,13 +458,13 @@ public class Venda extends javax.swing.JInternalFrame {
         nomeAtendente.setText(nome);
     }//GEN-LAST:event_nomeVendedorActionPerformed
     private void recalcularTotalBruto() {
-        acumulador = 0f;
-        for (int x = 0; x < tabelaVenda.getRowCount(); x++) {
-            Float precoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString());
-            Float quantidadeLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString());
-            acumulador += precoLoop * quantidadeLoop;
-        }
-        totalBruto.setText(String.valueOf(acumulador));
+       float acumulador = 0f; // Inicializa o acumulador com 0
+for (int x = 0; x < tabelaVenda.getRowCount(); x++) { // Percorre as linhas da tabela, começando da segunda linha
+    Float precoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString()); // Obtém o preço da coluna 1 e converte para Float
+    Float quantidadeLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString()); // Obtém a quantidade da coluna 3 e converte para Float
+    acumulador += precoLoop * quantidadeLoop; // Multiplica preço pela quantidade e adiciona ao acumulador
+}
+totalBruto.setText(String.valueOf(acumulador)); // Define o texto de totalBruto com o valor acumulado
     }
 
     private void tabelaVendaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaVendaMouseClicked
@@ -458,15 +476,6 @@ public class Venda extends javax.swing.JInternalFrame {
             
         }*/
     }//GEN-LAST:event_tabelaVendaMouseClicked
-
-    private void tabelaVendaPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_tabelaVendaPropertyChange
-        String coluna_quantidade = tabelaVenda.getValueAt(tabelaVenda.getSelectedRow(),3).toString();
-
-    public void tableChanged(TableModelEvent e) {
-        if (e.getColumn() == 3 && e.getType() == TableModelEvent.UPDATE) {
-            recalcularTotalBruto();
-        }
-    }//GEN-LAST:event_tabelaVendaPropertyChange
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

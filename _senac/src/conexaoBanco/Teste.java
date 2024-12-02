@@ -9,7 +9,7 @@ package conexaoBanco;
  * @author kauan
  */
 public class Teste {
-    
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -33,8 +33,8 @@ public class Teste {
             java.util.logging.Logger.getLogger(PaginaInicial.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-Venda v = new Venda();
-    v.setVisible(true);
+        Venda v = new Venda();
+        v.setVisible(true);
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -42,5 +42,5 @@ Venda v = new Venda();
             }
         });
     }
-    
+
 }
