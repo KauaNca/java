@@ -24,6 +24,7 @@ import javax.swing.table.DefaultTableModel;
 public class Categoria extends javax.swing.JInternalFrame {
 
     DefaultTableModel tabela;
+
     private KeyListener keyListener;
 
     /**
@@ -31,13 +32,17 @@ public class Categoria extends javax.swing.JInternalFrame {
      */
     public Categoria() throws SQLException, ClassNotFoundException {
         initComponents();
+        lbNovoNome.setVisible(false);
+        txAtualizar.setVisible(false);
+        btAtualizar.setVisible(false);
+
         keyListener = new KeyAdapter() {
-        @Override
-        public void keyPressed(KeyEvent evt) {
-            txCategoriaKeyPressed(evt);
-        }
-    };
-    tabelaCategoria.addKeyListener(keyListener);
+            @Override
+            public void keyPressed(KeyEvent evt) {
+                txCategoriaKeyPressed(evt);
+            }
+        };
+        tabelaCategoria.addKeyListener(keyListener);
 
         try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
             String comandoSQL = "SELECT * FROM categoria";
@@ -71,6 +76,9 @@ public class Categoria extends javax.swing.JInternalFrame {
         tabelaCategoria = new javax.swing.JTable();
         btAdicionar = new javax.swing.JButton();
         btAlterar = new javax.swing.JButton();
+        txAtualizar = new javax.swing.JTextField();
+        lbNovoNome = new javax.swing.JLabel();
+        btAtualizar = new javax.swing.JButton();
 
         setClosable(true);
         setIconifiable(true);
@@ -116,10 +124,19 @@ public class Categoria extends javax.swing.JInternalFrame {
             }
         });
 
-        btAlterar.setText("Atualizar");
+        btAlterar.setText("Editar");
         btAlterar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 btAlterarMouseClicked(evt);
+            }
+        });
+
+        lbNovoNome.setText("Novo nome:");
+
+        btAtualizar.setText("Atualizar");
+        btAtualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btAtualizarActionPerformed(evt);
             }
         });
 
@@ -127,17 +144,26 @@ public class Categoria extends javax.swing.JInternalFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1)
             .addGroup(layout.createSequentialGroup()
                 .addGap(39, 39, 39)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(txCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(lbNovoNome))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btAlterar)
-                    .addComponent(btAdicionar))
-                .addContainerGap(142, Short.MAX_VALUE))
+                    .addComponent(txCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txAtualizar))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btAdicionar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btAlterar, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btAtualizar))
+                .addGap(158, 158, 158))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 542, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -146,12 +172,16 @@ public class Categoria extends javax.swing.JInternalFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(txCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btAdicionar))
+                    .addComponent(btAdicionar)
+                    .addComponent(btAlterar))
                 .addGap(6, 6, 6)
-                .addComponent(btAlterar)
-                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txAtualizar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lbNovoNome)
+                    .addComponent(btAtualizar))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(44, Short.MAX_VALUE))
+                .addGap(29, 29, 29))
         );
 
         pack();
@@ -207,22 +237,50 @@ public class Categoria extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btAdicionarMouseClicked
 
     private void btAlterarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btAlterarMouseClicked
-       int selectedRow = tabelaCategoria.getSelectedRow();
-    
-    if (selectedRow != -1) { // Verifica se uma linha está selecionada
-        String categoria = tabelaCategoria.getValueAt(selectedRow, 1).toString();
-        String id_categoria = tabelaCategoria.getValueAt(selectedRow, 0).toString();
-        
-        
-        
+        lbNovoNome.setVisible(true);
+        txAtualizar.setVisible(true);
+        btAtualizar.setVisible(true);
+        btAlterar.setVisible(false);
+    }//GEN-LAST:event_btAlterarMouseClicked
+
+    private void tabelaCategoriaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaCategoriaMouseClicked
+        txAtualizar.setText(tabelaCategoria.getValueAt(tabelaCategoria.getSelectedRow(), 1).toString());
+        // Desativa o listener de keyPressed
+        tabelaCategoria.removeKeyListener(keyListener);
+
+    }//GEN-LAST:event_tabelaCategoriaMouseClicked
+
+    private void btAtualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btAtualizarActionPerformed
+        String mudanca = txAtualizar.getText();
+        String id_categoria = tabela.getValueAt(tabelaCategoria.getSelectedRow(), 0).toString();
+
         try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
             String comandoSQL = "UPDATE categoria SET descricao = ? WHERE id_categoria = ?;";
             try (PreparedStatement stmt = conexaoAtiva.prepareStatement(comandoSQL)) {
-                stmt.setString(1, categoria);
+                stmt.setString(1, mudanca);
                 stmt.setString(2, id_categoria);
                 stmt.executeUpdate();
                 JOptionPane.showMessageDialog(null, "Atualizado com sucesso!");
+                stmt.close();
+
+                String SQL = "SELECT * FROM categoria";
+                PreparedStatement ps = conexaoAtiva.prepareStatement(SQL);
+                tabela = (DefaultTableModel) tabelaCategoria.getModel();
+                tabela.setNumRows(0);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    Object dados[] = {
+                        rs.getString("id_categoria"),
+                        rs.getString("descricao")
+                    };
+                    tabela.addRow(dados);
+                }
+                rs.close();
+                ps.close();
+
             }
+            conexaoAtiva.close();
+
         } catch (SQLException ex) {
             System.err.println("ERRO - BANCO DE DADOS - ATUALIZAR: " + ex.getMessage());
         } catch (ClassNotFoundException ex) {
@@ -231,25 +289,19 @@ public class Categoria extends javax.swing.JInternalFrame {
             // Reativa o listener de keyPressed
             tabelaCategoria.addKeyListener(keyListener);
         }
-    } else {
-        JOptionPane.showMessageDialog(null, "Por favor, selecione uma linha primeiro.");
-    }
-    }//GEN-LAST:event_btAlterarMouseClicked
 
-    private void tabelaCategoriaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaCategoriaMouseClicked
-        txCategoria.setText(tabelaCategoria.getValueAt(tabelaCategoria.getSelectedRow(), 1).toString());
-        // Desativa o listener de keyPressed
-        tabelaCategoria.removeKeyListener(keyListener);
-
-    }//GEN-LAST:event_tabelaCategoriaMouseClicked
+    }//GEN-LAST:event_btAtualizarActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btAdicionar;
     private javax.swing.JButton btAlterar;
+    private javax.swing.JButton btAtualizar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lbNovoNome;
     private javax.swing.JTable tabelaCategoria;
+    private javax.swing.JTextField txAtualizar;
     private javax.swing.JTextField txCategoria;
     // End of variables declaration//GEN-END:variables
 }
