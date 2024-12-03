@@ -36,7 +36,7 @@ public class Venda extends javax.swing.JInternalFrame {
      * Creates new form Venda
      */
     public Venda() {
-       
+
         initComponents();
         try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
             String comandoSQL = "SELECT * FROM produto";
@@ -60,6 +60,17 @@ public class Venda extends javax.swing.JInternalFrame {
         } catch (Exception e) {
             System.out.println("ERRO BANCO DE DADOS - FRAME VENDA" + e.getMessage());
         }
+        try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
+            String comandoSQL = "INSERT INTO venda(situacao,id_cliente,id_atendente,numero_cupom) VALUES('P',5,4,7)";
+            PreparedStatement ps = conexaoAtiva.prepareStatement(comandoSQL);
+            ps.execute();
+
+        } catch (SQLException e) {
+            System.out.println("ERRO BANCO DE DADOS - FRAME VENDA" + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("ERRO BANCO DE DADOS - FRAME VENDA" + e.getMessage());
+        }
+
         // Adicionar TableModelListener para detectar alterações na tabela de vendas
         /*tabela2.addTableModelListener(new TableModelListener() {
             @Override
@@ -373,7 +384,7 @@ public class Venda extends javax.swing.JInternalFrame {
             tabela2 = (DefaultTableModel) tabelaVenda.getModel();
             String quantidade = JOptionPane.showInputDialog("Quantidade");
             preco = tabelaProduto.getValueAt(tabelaProduto.getSelectedRow(), 2).toString();
-           Float total = Float.parseFloat(preco) * Integer.parseInt(quantidade);
+            Float total = Float.parseFloat(preco) * Integer.parseInt(quantidade);
             Object[] dados = {
                 produto = tabelaProduto.getValueAt(tabelaProduto.getSelectedRow(), 1).toString(),
                 preco,
@@ -406,19 +417,50 @@ public class Venda extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_cancelarVendaActionPerformed
 
     private void confirmarVendaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_confirmarVendaMouseClicked
-        try(Connection conexaoAtiva = Conexao.conexaoBanco()){
-            String preco = null;
-            String quantidade = null;
-            String comandoSQL = "INSERT INTO item_venda(quantidade,desconto,acrescimo,id_produto,id_venda) VALUES (?,0,0,(SELECT id_produto FROM produto descricao = ?),?);";
-            PreparedStatement stmt = conexaoAtiva.prepareStatement(comandoSQL);
-            for(int x = 0;x<tabelaVenda.getRowCount();x++){
-                stmt.setString(1,tabelaVenda.getValueAt(x,3).toString());
-                stmt.setString(2,tabelaVenda.getValueAt(x,1).toString());
-                stmt.setString(3,"?");
+        try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
+            // Primeiro, obtenha o último id_venda
+            String getLastVendaIdSQL = "SELECT id_venda FROM venda ORDER BY id_venda DESC LIMIT 1";
+            PreparedStatement getLastVendaIdStmt = conexaoAtiva.prepareStatement(getLastVendaIdSQL);
+            ResultSet rsVenda = getLastVendaIdStmt.executeQuery();
+            int lastVendaId = 0;
+            if (rsVenda.next()) {
+                lastVendaId = rsVenda.getInt("id_venda");
             }
-            String comandoSQL2 = "SELECT i";
-            PreparedStatement ps = conexaoAtiva.prepareStatement(comandoSQL2);
-           
+
+            // Agora, para cada item na tabelaVenda, obtenha o id_produto e insira o item de venda
+            for (int x = 0; x < tabelaVenda.getRowCount(); x++) {
+                String descricaoProduto = tabelaVenda.getValueAt(x, 0).toString();
+                String getProdutoIdSQL = "SELECT id_produto FROM produto WHERE descricao = ?";
+                PreparedStatement getProdutoIdStmt = conexaoAtiva.prepareStatement(getProdutoIdSQL);
+                getProdutoIdStmt.setString(1, descricaoProduto);
+                ResultSet rsProduto = getProdutoIdStmt.executeQuery();
+                int produtoId = 0;
+                if (rsProduto.next()) {
+                    produtoId = rsProduto.getInt("id_produto");
+                }
+
+                String comandoSQL = "INSERT INTO item_venda(quantidade, desconto, acrescimo, id_produto, id_venda) "
+                        + "VALUES (?, 0, 0, ?, ?)";
+                PreparedStatement stmt = conexaoAtiva.prepareStatement(comandoSQL);
+                stmt.setString(1, tabelaVenda.getValueAt(x, 3).toString());
+                stmt.setInt(2, produtoId);
+                stmt.setInt(3, lastVendaId);
+                stmt.execute();
+            }
+
+            // Atualize a venda
+            String SQL = "UPDATE venda SET "
+                    + "id_cliente = (SELECT id_cliente FROM cliente INNER JOIN pessoa ON pessoa.id_pessoa = cliente.id_pessoa WHERE nome = ?), "
+                    + "id_atendente = (SELECT id_atendente FROM atendente INNER JOIN pessoa ON pessoa.id_pessoa = atendente.id_pessoa WHERE nome = ?) "
+                    + "WHERE id_venda = ?";
+            PreparedStatement ps = conexaoAtiva.prepareStatement(SQL);
+            ps.setString(1, nomeCliente.getText());
+            ps.setString(2, nomeAtendente.getText());
+            ps.setInt(3, lastVendaId);
+            ps.execute();
+            System.out.println("");
+            dispose();
+
         } catch (SQLException ex) {
             Logger.getLogger(Venda.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
@@ -458,13 +500,13 @@ public class Venda extends javax.swing.JInternalFrame {
         nomeAtendente.setText(nome);
     }//GEN-LAST:event_nomeVendedorActionPerformed
     private void recalcularTotalBruto() {
-       float acumulador = 0f; // Inicializa o acumulador com 0
-for (int x = 0; x < tabelaVenda.getRowCount(); x++) { // Percorre as linhas da tabela, começando da segunda linha
-    Float precoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString()); // Obtém o preço da coluna 1 e converte para Float
-    Float quantidadeLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString()); // Obtém a quantidade da coluna 3 e converte para Float
-    acumulador += precoLoop * quantidadeLoop; // Multiplica preço pela quantidade e adiciona ao acumulador
-}
-totalBruto.setText(String.valueOf(acumulador)); // Define o texto de totalBruto com o valor acumulado
+        float acumulador = 0f; // Inicializa o acumulador com 0
+        for (int x = 0; x < tabelaVenda.getRowCount(); x++) { // Percorre as linhas da tabela, começando da segunda linha
+            Float precoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString()); // Obtém o preço da coluna 1 e converte para Float
+            Float quantidadeLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString()); // Obtém a quantidade da coluna 3 e converte para Float
+            acumulador += precoLoop * quantidadeLoop; // Multiplica preço pela quantidade e adiciona ao acumulador
+        }
+        totalBruto.setText(String.valueOf(acumulador)); // Define o texto de totalBruto com o valor acumulado
     }
 
     private void tabelaVendaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaVendaMouseClicked
