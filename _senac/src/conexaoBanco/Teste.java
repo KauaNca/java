@@ -35,6 +35,11 @@ public class Teste {
         //</editor-fold>
         Venda v = new Venda();
         v.setVisible(true);
+        
+        
+            
+        
+
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
