@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.JTextField;
 
 /**
  *
@@ -30,12 +31,15 @@ public class Venda extends javax.swing.JInternalFrame {
     float acumulador;
     float totalCompra;
     String cancelado;
-    int x;
+
     String situacao = null;
     String id_venda = null;
     String cliente = null;
     String atendente = null;
     Float valor = 0f;
+    float descontoTotal;
+    float acrescimoTotal;
+    Float acumuladorItem;
 
     /**
      * Creates new form Venda
@@ -53,8 +57,8 @@ public class Venda extends javax.swing.JInternalFrame {
                 situacao = rs.getString("situacao");
             }
 
-            if (situacao == "F") {//CASO NÃO ENCONTRE NADA, PASSA PARA PRÓXIMA VENDA
-                String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
+            if (situacao.equals("F")) {//CASO NÃO ENCONTRE NADA, PASSA PARA PRÓXIMA VENDA
+                String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
                 PreparedStatement ps = conexao.prepareStatement(comandoSQL);
                 ps.execute();
 
@@ -67,10 +71,10 @@ public class Venda extends javax.swing.JInternalFrame {
                 }
                 numeroIdVenda.setText(String.valueOf(lastVendaId));
 
-            } else if (situacao == "P") {//CASO ESTEJA PENDENTE
+            } else if (situacao.equals("P")) {//CASO ESTEJA PENDENTE
                 int resposta = JOptionPane.showConfirmDialog(null, "A sua última venda não foi finalizada. Deseja continuar?", "Confirmação", JOptionPane.YES_NO_OPTION);
 
-                if (resposta == JOptionPane.YES_OPTION) {
+                if (resposta ==JOptionPane.YES_OPTION) {
                     String SQL2 = "SELECT id_venda FROM venda WHERE situacao = 'P' ORDER BY id_venda DESC LIMIT 1;";
                     PreparedStatement stmt2 = conexao.prepareStatement(SQL2);
                     ResultSet rs2 = stmt2.executeQuery();
@@ -155,7 +159,7 @@ public class Venda extends javax.swing.JInternalFrame {
                         }
 
                         // Inserir nova venda
-                        String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
+                        String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
                         ps = conexao.prepareStatement(comandoSQL);
                         ps.execute();
 
@@ -196,7 +200,7 @@ public class Venda extends javax.swing.JInternalFrame {
                     stmt3.execute();
 
                     JOptionPane.showMessageDialog(null, "NOVA VENDA");
-                    String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
+                    String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
                     PreparedStatement ps = conexao.prepareStatement(comandoSQL);
                     ps.execute();
 
@@ -211,7 +215,7 @@ public class Venda extends javax.swing.JInternalFrame {
 
                 }
             } else {
-                String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
+                String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
                 PreparedStatement ps = conexao.prepareStatement(comandoSQL);
                 ps.execute();
 
@@ -253,6 +257,28 @@ public class Venda extends javax.swing.JInternalFrame {
         } catch (Exception e) {
             System.out.println("ERRO BANCO DE DADOS - FRAME VENDA" + e.getMessage());
         }
+
+        try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
+            String comandoSQL = "SELECT nome,cpf_cnpj FROM pessoa WHERE tipo LIKE 'Cliente';";
+            PreparedStatement ps = conexaoAtiva.prepareStatement(comandoSQL);
+            tabela = (DefaultTableModel) tabelaCliente.getModel();
+            tabela.setNumRows(0);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Object dados[] = {
+                    rs.getString("nome"),
+                    rs.getString("cpf_cnpj"),};
+                tabela.addRow(dados);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("ERRO BANCO DE DADOS - FRAME VENDA" + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("ERRO BANCO DE DADOS - FRAME VENDA" + e.getMessage());
+        }
+        acrescimoTotal = 0;
+        descontoTotal = 0;
+        acumuladorItem = 0f;
     }
 
     /**
@@ -276,7 +302,6 @@ public class Venda extends javax.swing.JInternalFrame {
         jLabel4 = new javax.swing.JLabel();
         desconto = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        acrescimo = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         totalBruto = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
@@ -290,6 +315,8 @@ public class Venda extends javax.swing.JInternalFrame {
         nomeAtendente = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         numeroIdVenda = new javax.swing.JTextField();
+        cancelarItem = new javax.swing.JButton();
+        acrescimo = new javax.swing.JTextField();
 
         setClosable(true);
         setIconifiable(true);
@@ -333,11 +360,11 @@ public class Venda extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "Produto", "Preço", "Cancelado", "Quantidade", "Total"
+                "Produto", "Preço", "Cancelado", "Quantidade", "Acréscimo", "Desconto", "Total"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, true, true, false
+                false, false, true, true, true, true, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -426,6 +453,13 @@ public class Venda extends javax.swing.JInternalFrame {
             }
         });
 
+        cancelarItem.setText("Cancelar Item");
+        cancelarItem.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cancelarItemMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -447,10 +481,15 @@ public class Venda extends javax.swing.JInternalFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(clientePesquisar, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(31, 31, 31)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(clientePesquisar, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel1)))
                         .addGap(203, 203, 203)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(nomeAtendente, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -458,12 +497,12 @@ public class Venda extends javax.swing.JInternalFrame {
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                     .addComponent(jLabel4)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGap(26, 26, 26)
                                     .addComponent(desconto, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                     .addComponent(jLabel5)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(acrescimo, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(acrescimo, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(63, 63, 63)
@@ -483,8 +522,8 @@ public class Venda extends javax.swing.JInternalFrame {
                                     .addGap(28, 28, 28)
                                     .addComponent(confirmarVenda))))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
-                .addContainerGap(126, Short.MAX_VALUE))
+                .addComponent(cancelarItem)
+                .addContainerGap(81, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -493,9 +532,9 @@ public class Venda extends javax.swing.JInternalFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
                     .addComponent(numeroIdVenda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
                             .addComponent(nomeVendedor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -514,15 +553,18 @@ public class Venda extends javax.swing.JInternalFrame {
                                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(34, 34, 34)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel5)
-                                    .addComponent(acrescimo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(24, 24, 24)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel4)
-                                    .addComponent(desconto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(cancelarItem)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(jLabel5)
+                                            .addComponent(acrescimo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGap(24, 24, 24)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(jLabel4)
+                                            .addComponent(desconto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(jLabel6)
@@ -536,9 +578,12 @@ public class Venda extends javax.swing.JInternalFrame {
                                             .addComponent(total, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                     .addGroup(layout.createSequentialGroup()
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(cancelarVenda))))))
-                    .addComponent(jLabel1))
-                .addContainerGap(857, Short.MAX_VALUE))
+                                        .addComponent(cancelarVenda)))))
+                        .addContainerGap(857, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel1)
+                        .addContainerGap())))
         );
 
         pack();
@@ -582,23 +627,14 @@ public class Venda extends javax.swing.JInternalFrame {
                 preco,
                 cancelado = "N",
                 quantidade,
+                acrescimoTotal,
+                descontoTotal,
                 String.valueOf(total)
             };
             tabela2.addRow(dados);
+            recalcularTotalItem();
             recalcularTotalBruto();
 
-            /*Float precoLoop = 0f;
-            Float quantidadeLoop = 0f;
-            Float multi = 0f;
-            acumulador = 0f;  // Iniciar o acumulador em 0
-
-            for (int x = 1; x < tabelaVenda.getRowCount(); x++) {
-                precoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString());
-                quantidadeLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString());  // Corrigido índice de quantidade
-                multi = precoLoop * quantidadeLoop;
-                acumulador += multi;
-            }
-            totalBruto.setText(String.valueOf(acumulador));*/
         }
 
 
@@ -606,10 +642,93 @@ public class Venda extends javax.swing.JInternalFrame {
 
     private void cancelarVendaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelarVendaActionPerformed
         tabela2.setNumRows(0);
+        totalBruto.setText(null);
     }//GEN-LAST:event_cancelarVendaActionPerformed
 
     private void confirmarVendaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_confirmarVendaMouseClicked
-        try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
+      try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
+    // Primeiro, obtenha o último id_venda
+    String getLastVendaIdSQL = "SELECT id_venda FROM venda ORDER BY id_venda DESC LIMIT 1";
+    try (PreparedStatement getLastVendaIdStmt = conexaoAtiva.prepareStatement(getLastVendaIdSQL);
+         ResultSet rsVenda = getLastVendaIdStmt.executeQuery()) {
+        int lastVendaId = 0;
+        if (rsVenda.next()) {
+            lastVendaId = rsVenda.getInt("id_venda");
+        }
+
+        // Variáveis para acumular desconto e acréscimo da venda inteira
+        float descontoTotalVenda = 0;
+        float acrescimoTotalVenda = 0;
+
+        // Verifique se há desconto ou acréscimo na venda inteira
+        if (!desconto.getText().isEmpty()) {
+            descontoTotalVenda = Float.parseFloat(desconto.getText());
+        }
+        if (!acrescimo.getText().isEmpty()) {
+            acrescimoTotalVenda = Float.parseFloat(acrescimo.getText());
+        }
+
+        // Agora, para cada item na tabelaVenda, obtenha o id_produto e insira o item de venda
+        for (int x = 0; x < tabelaVenda.getRowCount(); x++) {
+            String descricaoProduto = tabelaVenda.getValueAt(x, 0).toString();
+            String getProdutoIdSQL = "SELECT id_produto FROM produto WHERE descricao = ?";
+            try (PreparedStatement getProdutoIdStmt = conexaoAtiva.prepareStatement(getProdutoIdSQL)) {
+                getProdutoIdStmt.setString(1, descricaoProduto);
+                try (ResultSet rsProduto = getProdutoIdStmt.executeQuery()) {
+                    int produtoId = 0;
+                    if (rsProduto.next()) {
+                        produtoId = rsProduto.getInt("id_produto");
+                    }
+
+                    float descontoItem = Float.parseFloat(tabelaVenda.getValueAt(x, 4).toString());
+                    float acrescimoItem = Float.parseFloat(tabelaVenda.getValueAt(x, 5).toString());
+                    float quantidade = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString());
+                    float preco = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString());
+                    float totalItem = (quantidade * preco) - descontoItem + acrescimoItem;
+
+                    String comandoSQL = "INSERT INTO item_venda(quantidade, desconto, acrescimo, id_produto, id_venda) "
+                            + "VALUES (?, ?, ?, ?, ?)";
+                    try (PreparedStatement stmt = conexaoAtiva.prepareStatement(comandoSQL)) {
+                        stmt.setFloat(1, quantidade);
+                        stmt.setFloat(2, descontoItem);
+                        stmt.setFloat(3, acrescimoItem);
+                        stmt.setInt(4, produtoId);
+                        stmt.setInt(5, lastVendaId);
+                        stmt.execute();
+                    }
+                }
+            }
+        }
+
+        // Calcule o total da compra considerando desconto e acréscimo da venda inteira
+        float totalB = Float.parseFloat(totalBruto.getText());
+        totalCompra = totalB - descontoTotalVenda + acrescimoTotalVenda;
+
+        // Atualize a venda
+        String SQL = "UPDATE venda SET "
+                + "id_cliente = (SELECT id_cliente FROM cliente INNER JOIN pessoa ON pessoa.id_pessoa = cliente.id_pessoa WHERE nome = ?), "
+                + "id_atendente = (SELECT id_atendente FROM atendente INNER JOIN pessoa ON pessoa.id_pessoa = atendente.id_pessoa WHERE nome = ?), "
+                + "valor_total = ?, "
+                + "desconto = ?, "
+                + "acrescimo = ? "
+                + "WHERE id_venda = ?";
+        try (PreparedStatement ps = conexaoAtiva.prepareStatement(SQL)) {
+            ps.setString(1, nomeCliente.getText());
+            ps.setString(2, nomeAtendente.getText());
+            ps.setFloat(3, totalCompra);
+            ps.setFloat(4, descontoTotalVenda);
+            ps.setFloat(5, acrescimoTotalVenda);
+            ps.setInt(6, lastVendaId);
+            ps.execute();
+            System.out.println("FIM DA VENDA");
+            dispose();
+        }
+    }
+} catch (SQLException | ClassNotFoundException ex) {
+    Logger.getLogger(Venda.class.getName()).log(Level.SEVERE, null, ex);
+}
+        
+        /* try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
             // Primeiro, obtenha o último id_venda
             String getLastVendaIdSQL = "SELECT id_venda FROM venda ORDER BY id_venda DESC LIMIT 1";
             PreparedStatement getLastVendaIdStmt = conexaoAtiva.prepareStatement(getLastVendaIdSQL);
@@ -631,33 +750,65 @@ public class Venda extends javax.swing.JInternalFrame {
                     produtoId = rsProduto.getInt("id_produto");
                 }
 
+                descontoTotal = Float.parseFloat(tabelaVenda.getValueAt(x, 4).toString());
+                acrescimoTotal = Float.parseFloat(tabelaVenda.getValueAt(x, 5).toString());
+                acumuladorItem += descontoTotal + acrescimoTotal;
+
                 String comandoSQL = "INSERT INTO item_venda(quantidade, desconto, acrescimo, id_produto, id_venda) "
-                        + "VALUES (?, 0, 0, ?, ?)";
+                        + "VALUES (?, ?, ?, ?, ?)";
                 PreparedStatement stmt = conexaoAtiva.prepareStatement(comandoSQL);
                 stmt.setString(1, tabelaVenda.getValueAt(x, 3).toString());
-                stmt.setInt(2, produtoId);
-                stmt.setInt(3, lastVendaId);
+                stmt.setString(2, String.valueOf(descontoTotal));
+                stmt.setString(3, String.valueOf(acrescimoTotal));
+                stmt.setInt(4, produtoId);
+                stmt.setInt(5, lastVendaId);
                 stmt.execute();
             }
 
+            if (acumuladorItem == 0) {
+                descontoTotal = Float.parseFloat(desconto.getText());
+                acrescimoTotal = Float.parseFloat(acrescimo.getText());
+                totalCompra = Float.parseFloat(totalBruto.getText()) - descontoTotal - acrescimoTotal;
+
+            } else {
+                totalCompra = 0;
+            }
+
             // Atualize a venda
-            String SQL = "UPDATE venda SET "
-                    + "id_cliente = (SELECT id_cliente FROM cliente INNER JOIN pessoa ON pessoa.id_pessoa = cliente.id_pessoa WHERE nome = ?), "
-                    + "id_atendente = (SELECT id_atendente FROM atendente INNER JOIN pessoa ON pessoa.id_pessoa = atendente.id_pessoa WHERE nome = ?) "
-                    + "WHERE id_venda = ?";
-            PreparedStatement ps = conexaoAtiva.prepareStatement(SQL);
-            ps.setString(1, nomeCliente.getText());
-            ps.setString(2, nomeAtendente.getText());
-            ps.setInt(3, lastVendaId);
-            ps.execute();
-            System.out.println("FIM DA VENDA");
-            dispose();
+            if (totalCompra > 0) {
+                String SQL = "UPDATE venda SET "
+                        + "id_cliente = (SELECT id_cliente FROM cliente INNER JOIN pessoa ON pessoa.id_pessoa = cliente.id_pessoa WHERE nome = ?), "
+                        + "id_atendente = (SELECT id_atendente FROM atendente INNER JOIN pessoa ON pessoa.id_pessoa = atendente.id_pessoa WHERE nome = ?), "
+                        + "valor_total = ?"
+                        + "WHERE id_venda = ?";
+                PreparedStatement ps = conexaoAtiva.prepareStatement(SQL);
+                ps.setString(1, nomeCliente.getText());
+                ps.setString(2, nomeAtendente.getText());
+                ps.setFloat(3, totalCompra);
+                ps.setInt(4, lastVendaId);
+                ps.execute();
+                System.out.println("FIM DA VENDA");
+                dispose();
+            } else {
+                String SQL = "UPDATE venda SET "
+                        + "id_cliente = (SELECT id_cliente FROM cliente INNER JOIN pessoa ON pessoa.id_pessoa = cliente.id_pessoa WHERE nome = ?), "
+                        + "id_atendente = (SELECT id_atendente FROM atendente INNER JOIN pessoa ON pessoa.id_pessoa = atendente.id_pessoa WHERE nome = ?) "
+                        + "WHERE id_venda = ?";
+                PreparedStatement ps = conexaoAtiva.prepareStatement(SQL);
+                ps.setString(1, nomeCliente.getText());
+                ps.setString(2, nomeAtendente.getText());
+
+                ps.setInt(3, lastVendaId);
+                ps.execute();
+                System.out.println("FIM DA VENDA");
+                dispose();
+            }
 
         } catch (SQLException ex) {
             Logger.getLogger(Venda.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Venda.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }*/
     }//GEN-LAST:event_confirmarVendaMouseClicked
 
     private void clientePesquisarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_clientePesquisarKeyPressed
@@ -702,23 +853,39 @@ public class Venda extends javax.swing.JInternalFrame {
     }
 
     private void tabelaVendaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaVendaMouseClicked
-        /*Float precoLoop = null;
-        Float quantidadeLoop = null;
-        for (int x = 0; x < tabelaVenda.getRowCount(); x++) {
-            precoLoop += Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString());
-            quantidadeLoop +=Float.parseFloat(tabelaVenda.getValueAt(x,1).toString());
-            
-        }*/
+
     }//GEN-LAST:event_tabelaVendaMouseClicked
 
     private void numeroIdVendaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_numeroIdVendaKeyPressed
         // TODO add your handling code here:
     }//GEN-LAST:event_numeroIdVendaKeyPressed
 
+    private void cancelarItemMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancelarItemMouseClicked
+        tabela = (DefaultTableModel) tabelaVenda.getModel();
+        tabela.removeRow(tabelaVenda.getSelectedRow());
 
+    }//GEN-LAST:event_cancelarItemMouseClicked
+    private void recalcularTotalItem() {
+        tabela2 = (DefaultTableModel) tabelaVenda.getModel();
+        for (int x = 0; x < tabelaVenda.getRowCount(); x++) {
+            try {
+                Float acrescimoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 4).toString());
+                Float quantidadeLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString());
+                Float precoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString());
+                Float descontoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 5).toString());
+                Float total = (quantidadeLoop * precoLoop) - descontoLoop + acrescimoLoop;
+                tabela2.setValueAt(total, x, 6);
+                System.out.println("Linha " + x + ": Total calculado = " + total);
+            } catch (NumberFormatException e) {
+                System.out.println("Erro ao converter valor para número na linha " + x + ": " + e.getMessage());
+            }
+        }
+
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField acrescimo;
     private javax.swing.JTextField campoPesquisar;
+    private javax.swing.JButton cancelarItem;
     private javax.swing.JButton cancelarVenda;
     private javax.swing.JTextField clientePesquisar;
     private javax.swing.JButton confirmarVenda;

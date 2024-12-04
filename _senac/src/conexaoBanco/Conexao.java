@@ -18,9 +18,9 @@ import javax.swing.JOptionPane;
 public class Conexao {
 
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String URL = "jdbc:mysql://localhost:3306/sistema_venda";
+    private static final String URL = "jdbc:mysql://localhost:3307/sistema_venda";
     private static final String USER = "root";
-    private static final String PASS = "SUASENHA";
+    private static final String PASS = "senac";
 
     public static Connection conexaoBanco() throws SQLException, ClassNotFoundException {
         try {
