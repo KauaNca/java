@@ -54,8 +54,8 @@ public class Venda extends javax.swing.JInternalFrame {
             }
 
             if (situacao.equals("S")) {//CASO NÃO ENCONTRE NADA, PASSA PARA PRÓXIMA VENDA
-                //String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
-                String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
+                String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
+                //String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
                 PreparedStatement ps = conexao.prepareStatement(comandoSQL);
                 ps.execute();
 
@@ -156,8 +156,8 @@ public class Venda extends javax.swing.JInternalFrame {
                         }
 
                         // Inserir nova venda
-                        //String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
-                        String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
+                        String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
+                        //String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
                         ps = conexao.prepareStatement(comandoSQL);
                         ps.execute();
 
@@ -198,8 +198,8 @@ public class Venda extends javax.swing.JInternalFrame {
                     stmt3.execute();
 
                     JOptionPane.showMessageDialog(null, "NOVA VENDA");
-                    //String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
-                    String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
+                    String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
+                    //String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
                     PreparedStatement ps = conexao.prepareStatement(comandoSQL);
                     ps.execute();
 
@@ -214,8 +214,8 @@ public class Venda extends javax.swing.JInternalFrame {
 
                 }
             } else {
-                //String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
-                String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
+                String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
+                //String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
                 PreparedStatement ps = conexao.prepareStatement(comandoSQL);
                 ps.execute();
 
@@ -304,8 +304,6 @@ public class Venda extends javax.swing.JInternalFrame {
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         totalBruto = new javax.swing.JTextField();
-        jLabel7 = new javax.swing.JLabel();
-        total = new javax.swing.JTextField();
         confirmarVenda = new javax.swing.JButton();
         cancelarVenda = new javax.swing.JButton();
         nomeVendedor = new javax.swing.JComboBox<>();
@@ -398,9 +396,7 @@ public class Venda extends javax.swing.JInternalFrame {
 
         jLabel5.setText("Acréscimo");
 
-        jLabel6.setText("Total bruto");
-
-        jLabel7.setText("Total");
+        jLabel6.setText("Total ");
 
         confirmarVenda.setText("Confirmar venda");
         confirmarVenda.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -521,19 +517,15 @@ public class Venda extends javax.swing.JInternalFrame {
                         .addGap(63, 63, 63)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(total, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(cancelarVenda, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel6)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(totalBruto, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(28, 28, 28)
-                                    .addComponent(confirmarVenda))))))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(11, 11, 11)
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(totalBruto, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(28, 28, 28)
+                                .addComponent(confirmarVenda)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cancelarVenda, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(cancelarItem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -587,17 +579,9 @@ public class Venda extends javax.swing.JInternalFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(jLabel6)
                                     .addComponent(totalBruto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(confirmarVenda))
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(10, 10, 10)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                            .addComponent(jLabel7)
-                                            .addComponent(total, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(cancelarVenda)))))
-                        .addContainerGap(857, Short.MAX_VALUE))
+                                    .addComponent(confirmarVenda)
+                                    .addComponent(cancelarVenda))))
+                        .addContainerGap(893, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel1)
@@ -1005,7 +989,6 @@ public class Venda extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -1017,7 +1000,6 @@ public class Venda extends javax.swing.JInternalFrame {
     private javax.swing.JTable tabelaCliente;
     private javax.swing.JTable tabelaProduto;
     private javax.swing.JTable tabelaVenda;
-    private javax.swing.JTextField total;
     private javax.swing.JTextField totalBruto;
     // End of variables declaration//GEN-END:variables
 }
