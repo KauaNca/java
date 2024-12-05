@@ -101,7 +101,7 @@ public class cliente_atendente extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tabelaCliente);
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setText("Nome");
 
@@ -387,7 +387,7 @@ public class cliente_atendente extends javax.swing.JFrame {
 
     private void pesquisaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_pesquisaKeyPressed
         try (Connection conexaoAtiva = Conexao.conexaoBanco();
-     PreparedStatement ps = conexaoAtiva.prepareStatement("SELECT nome, tipo FROM pessoa WHERE nome LIKE ? ORDER BY nome DESC LIMIT 1")) {
+     PreparedStatement ps = conexaoAtiva.prepareStatement("SELECT nome, tipo FROM pessoa WHERE nome LIKE ? ORDER BY id_pessoa;")) {
     
     DefaultTableModel modeloTabela = (DefaultTableModel) tabelaPessoa.getModel();
     modeloTabela.setNumRows(0);

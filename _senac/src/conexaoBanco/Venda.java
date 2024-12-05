@@ -11,10 +11,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.JTextField;
 
 /**
  *
@@ -25,13 +22,8 @@ public class Venda extends javax.swing.JInternalFrame {
     DefaultTableModel tabela;
     DefaultTableModel tabela2;
     DefaultTableModel tabela3;
-    String produto;
     String preco;
-    String estoque;
-    float acumulador;
     float totalCompra;
-    String cancelado;
-
     String situacao = null;
     String id_venda = null;
     String cliente = null;
@@ -39,7 +31,11 @@ public class Venda extends javax.swing.JInternalFrame {
     Float valor = 0f;
     float descontoTotal;
     float acrescimoTotal;
-    Float acumuladorItem;
+    float acumuladorItem;
+     String cancelado;
+     String estoque;
+    float acumulador;
+    String produto;
 
     /**
      * Creates new form Venda
@@ -57,8 +53,9 @@ public class Venda extends javax.swing.JInternalFrame {
                 situacao = rs.getString("situacao");
             }
 
-            if (situacao.equals("F")) {//CASO NÃO ENCONTRE NADA, PASSA PARA PRÓXIMA VENDA
-                String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
+            if (situacao.equals("S")) {//CASO NÃO ENCONTRE NADA, PASSA PARA PRÓXIMA VENDA
+                //String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
+                String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
                 PreparedStatement ps = conexao.prepareStatement(comandoSQL);
                 ps.execute();
 
@@ -74,7 +71,7 @@ public class Venda extends javax.swing.JInternalFrame {
             } else if (situacao.equals("P")) {//CASO ESTEJA PENDENTE
                 int resposta = JOptionPane.showConfirmDialog(null, "A sua última venda não foi finalizada. Deseja continuar?", "Confirmação", JOptionPane.YES_NO_OPTION);
 
-                if (resposta ==JOptionPane.YES_OPTION) {
+                if (resposta == JOptionPane.YES_OPTION) {
                     String SQL2 = "SELECT id_venda FROM venda WHERE situacao = 'P' ORDER BY id_venda DESC LIMIT 1;";
                     PreparedStatement stmt2 = conexao.prepareStatement(SQL2);
                     ResultSet rs2 = stmt2.executeQuery();
@@ -159,7 +156,8 @@ public class Venda extends javax.swing.JInternalFrame {
                         }
 
                         // Inserir nova venda
-                        String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
+                        //String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
+                        String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
                         ps = conexao.prepareStatement(comandoSQL);
                         ps.execute();
 
@@ -200,7 +198,8 @@ public class Venda extends javax.swing.JInternalFrame {
                     stmt3.execute();
 
                     JOptionPane.showMessageDialog(null, "NOVA VENDA");
-                    String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
+                    //String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
+                    String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
                     PreparedStatement ps = conexao.prepareStatement(comandoSQL);
                     ps.execute();
 
@@ -215,7 +214,8 @@ public class Venda extends javax.swing.JInternalFrame {
 
                 }
             } else {
-                String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
+                //String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 5, 4, 0)";
+                String comandoSQL = "INSERT INTO venda(situacao, id_cliente, id_atendente, numero_cupom) VALUES('P', 8, 6, 0)";
                 PreparedStatement ps = conexao.prepareStatement(comandoSQL);
                 ps.execute();
 
@@ -317,6 +317,7 @@ public class Venda extends javax.swing.JInternalFrame {
         numeroIdVenda = new javax.swing.JTextField();
         cancelarItem = new javax.swing.JButton();
         acrescimo = new javax.swing.JTextField();
+        btAtualizar = new javax.swing.JButton();
 
         setClosable(true);
         setIconifiable(true);
@@ -374,6 +375,11 @@ public class Venda extends javax.swing.JInternalFrame {
         tabelaVenda.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tabelaVendaMouseClicked(evt);
+            }
+        });
+        tabelaVenda.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                tabelaVendaPropertyChange(evt);
             }
         });
         jScrollPane2.setViewportView(tabelaVenda);
@@ -460,6 +466,13 @@ public class Venda extends javax.swing.JInternalFrame {
             }
         });
 
+        btAtualizar.setText("Atualizar");
+        btAtualizar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btAtualizarMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -522,7 +535,9 @@ public class Venda extends javax.swing.JInternalFrame {
                                     .addGap(28, 28, 28)
                                     .addComponent(confirmarVenda))))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(cancelarItem)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(cancelarItem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btAtualizar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(81, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -554,7 +569,10 @@ public class Venda extends javax.swing.JInternalFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(34, 34, 34)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(cancelarItem)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(btAtualizar)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(cancelarItem))
                                     .addGroup(layout.createSequentialGroup()
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                             .addComponent(jLabel5)
@@ -646,169 +664,199 @@ public class Venda extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_cancelarVendaActionPerformed
 
     private void confirmarVendaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_confirmarVendaMouseClicked
-      try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
-    // Primeiro, obtenha o último id_venda
-    String getLastVendaIdSQL = "SELECT id_venda FROM venda ORDER BY id_venda DESC LIMIT 1";
-    try (PreparedStatement getLastVendaIdStmt = conexaoAtiva.prepareStatement(getLastVendaIdSQL);
-         ResultSet rsVenda = getLastVendaIdStmt.executeQuery()) {
-        int lastVendaId = 0;
-        if (rsVenda.next()) {
-            lastVendaId = rsVenda.getInt("id_venda");
-        }
+        try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
+            int resposta = JOptionPane.showConfirmDialog(null, "Deseja finalizar a venda?", "Confirmação", JOptionPane.YES_NO_OPTION);
 
-        // Variáveis para acumular desconto e acréscimo da venda inteira
-        float descontoTotalVenda = 0;
-        float acrescimoTotalVenda = 0;
-
-        // Verifique se há desconto ou acréscimo na venda inteira
-        if (!desconto.getText().isEmpty()) {
-            descontoTotalVenda = Float.parseFloat(desconto.getText());
-        }
-        if (!acrescimo.getText().isEmpty()) {
-            acrescimoTotalVenda = Float.parseFloat(acrescimo.getText());
-        }
-
-        // Agora, para cada item na tabelaVenda, obtenha o id_produto e insira o item de venda
-        for (int x = 0; x < tabelaVenda.getRowCount(); x++) {
-            String descricaoProduto = tabelaVenda.getValueAt(x, 0).toString();
-            String getProdutoIdSQL = "SELECT id_produto FROM produto WHERE descricao = ?";
-            try (PreparedStatement getProdutoIdStmt = conexaoAtiva.prepareStatement(getProdutoIdSQL)) {
-                getProdutoIdStmt.setString(1, descricaoProduto);
-                try (ResultSet rsProduto = getProdutoIdStmt.executeQuery()) {
-                    int produtoId = 0;
-                    if (rsProduto.next()) {
-                        produtoId = rsProduto.getInt("id_produto");
+            if (resposta == JOptionPane.YES_OPTION) {
+                // Primeiro, obtenha o último id_venda
+                String getLastVendaIdSQL = "SELECT id_venda FROM venda ORDER BY id_venda DESC LIMIT 1";
+                try (PreparedStatement getLastVendaIdStmt = conexaoAtiva.prepareStatement(getLastVendaIdSQL); ResultSet rsVenda = getLastVendaIdStmt.executeQuery()) {
+                    int lastVendaId = 0;
+                    if (rsVenda.next()) {
+                        lastVendaId = rsVenda.getInt("id_venda");
                     }
 
-                    float descontoItem = Float.parseFloat(tabelaVenda.getValueAt(x, 4).toString());
-                    float acrescimoItem = Float.parseFloat(tabelaVenda.getValueAt(x, 5).toString());
-                    float quantidade = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString());
-                    float preco = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString());
-                    float totalItem = (quantidade * preco) - descontoItem + acrescimoItem;
+                    // Variáveis para acumular desconto e acréscimo da venda inteira
+                    float descontoTotalVenda = 0;
+                    float acrescimoTotalVenda = 0;
 
-                    String comandoSQL = "INSERT INTO item_venda(quantidade, desconto, acrescimo, id_produto, id_venda) "
-                            + "VALUES (?, ?, ?, ?, ?)";
-                    try (PreparedStatement stmt = conexaoAtiva.prepareStatement(comandoSQL)) {
-                        stmt.setFloat(1, quantidade);
-                        stmt.setFloat(2, descontoItem);
-                        stmt.setFloat(3, acrescimoItem);
-                        stmt.setInt(4, produtoId);
-                        stmt.setInt(5, lastVendaId);
-                        stmt.execute();
+                    // Verifique se há desconto ou acréscimo na venda inteira
+                    if (!desconto.getText().isEmpty()) {
+                        descontoTotalVenda = Float.parseFloat(desconto.getText());
+                    }
+                    if (!acrescimo.getText().isEmpty()) {
+                        acrescimoTotalVenda = Float.parseFloat(acrescimo.getText());
+                    }
+
+                    // Agora, para cada item na tabelaVenda, obtenha o id_produto e insira o item de venda
+                    for (int x = 0; x < tabelaVenda.getRowCount(); x++) {
+                        String descricaoProduto = tabelaVenda.getValueAt(x, 0).toString();
+                        String getProdutoIdSQL = "SELECT id_produto FROM produto WHERE descricao = ?";
+                        try (PreparedStatement getProdutoIdStmt = conexaoAtiva.prepareStatement(getProdutoIdSQL)) {
+                            getProdutoIdStmt.setString(1, descricaoProduto);
+                            try (ResultSet rsProduto = getProdutoIdStmt.executeQuery()) {
+                                int produtoId = 0;
+                                if (rsProduto.next()) {
+                                    produtoId = rsProduto.getInt("id_produto");
+                                }
+
+                                float descontoItem = Float.parseFloat(tabelaVenda.getValueAt(x, 4).toString());
+                                float acrescimoItem = Float.parseFloat(tabelaVenda.getValueAt(x, 5).toString());
+                                float quantidade = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString());
+                                float preco = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString());
+                                float totalItem = (quantidade * preco) - descontoItem + acrescimoItem;
+
+                                String comandoSQL = "INSERT INTO item_venda(quantidade, desconto, acrescimo, id_produto, id_venda) "
+                                        + "VALUES (?, ?, ?, ?, ?)";
+                                try (PreparedStatement stmt = conexaoAtiva.prepareStatement(comandoSQL)) {
+                                    stmt.setFloat(1, quantidade);
+                                    stmt.setFloat(2, descontoItem);
+                                    stmt.setFloat(3, acrescimoItem);
+                                    stmt.setInt(4, produtoId);
+                                    stmt.setInt(5, lastVendaId);
+                                    stmt.execute();
+                                }
+                            }
+                        }
+                    }
+
+                    // Calcule o total da compra considerando desconto e acréscimo da venda inteira
+                    float totalB = Float.parseFloat(totalBruto.getText());
+                    totalCompra = totalB - descontoTotalVenda + acrescimoTotalVenda;
+
+                    // Atualize a venda
+                    String SQL = "UPDATE venda SET "
+                            + "id_cliente = (SELECT id_cliente FROM cliente INNER JOIN pessoa ON pessoa.id_pessoa = cliente.id_pessoa WHERE nome = ?), "
+                            + "id_atendente = (SELECT id_atendente FROM atendente INNER JOIN pessoa ON pessoa.id_pessoa = atendente.id_pessoa WHERE nome = ?), "
+                            + "valor_total = ?, "
+                            + "desconto = ?, "
+                            + "acrescimo = ? "
+                            + "WHERE id_venda = ?";
+                    try (PreparedStatement ps = conexaoAtiva.prepareStatement(SQL)) {
+                        ps.setString(1, nomeCliente.getText());
+                        ps.setString(2, nomeAtendente.getText());
+                        ps.setFloat(3, totalCompra);
+                        ps.setFloat(4, descontoTotalVenda);
+                        ps.setFloat(5, acrescimoTotalVenda);
+                        ps.setInt(6, lastVendaId);
+                        ps.execute();
+                        System.out.println("FIM DA VENDA");
+                        dispose();
+                    }
+                }
+            } else if (resposta == JOptionPane.NO_OPTION) {
+                int salvar = JOptionPane.showConfirmDialog(null, "Deseja salvar?", "Confirmação", JOptionPane.YES_NO_OPTION);
+                if (salvar == JOptionPane.YES_OPTION) {
+                    // Primeiro, obtenha o último id_venda
+                    String getLastVendaIdSQL = "SELECT id_venda FROM venda ORDER BY id_venda DESC LIMIT 1";
+                    try (PreparedStatement getLastVendaIdStmt = conexaoAtiva.prepareStatement(getLastVendaIdSQL); ResultSet rsVenda = getLastVendaIdStmt.executeQuery()) {
+                        int lastVendaId = 0;
+                        if (rsVenda.next()) {
+                            lastVendaId = rsVenda.getInt("id_venda");
+                        }
+
+                        // Variáveis para acumular desconto e acréscimo da venda inteira
+                        float descontoTotalVenda = 0;
+                        float acrescimoTotalVenda = 0;
+
+                        // Verifique se há desconto ou acréscimo na venda inteira
+                        if (!desconto.getText().isEmpty()) {
+                            descontoTotalVenda = Float.parseFloat(desconto.getText());
+                        }
+                        if (!acrescimo.getText().isEmpty()) {
+                            acrescimoTotalVenda = Float.parseFloat(acrescimo.getText());
+                        }
+
+                        // Agora, para cada item na tabelaVenda, obtenha o id_produto e insira o item de venda
+                        for (int x = 0; x < tabelaVenda.getRowCount(); x++) {
+                            String descricaoProduto = tabelaVenda.getValueAt(x, 0).toString();
+                            String getProdutoIdSQL = "SELECT id_produto FROM produto WHERE descricao = ?";
+                            try (PreparedStatement getProdutoIdStmt = conexaoAtiva.prepareStatement(getProdutoIdSQL)) {
+                                getProdutoIdStmt.setString(1, descricaoProduto);
+                                try (ResultSet rsProduto = getProdutoIdStmt.executeQuery()) {
+                                    int produtoId = 0;
+                                    if (rsProduto.next()) {
+                                        produtoId = rsProduto.getInt("id_produto");
+                                    }
+
+                                    float descontoItem = Float.parseFloat(tabelaVenda.getValueAt(x, 4).toString());
+                                    float acrescimoItem = Float.parseFloat(tabelaVenda.getValueAt(x, 5).toString());
+                                    float quantidade = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString());
+                                    float preco = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString());
+                                    float totalItem = (quantidade * preco) - descontoItem + acrescimoItem;
+
+                                    String comandoSQL = "INSERT INTO item_venda(quantidade, desconto, acrescimo, cancelado, id_produto, id_venda) "
+                                            + "VALUES (?, ?, ?,'N',?, ?)";
+                                    try (PreparedStatement stmt = conexaoAtiva.prepareStatement(comandoSQL)) {
+                                        stmt.setFloat(1, quantidade);
+                                        stmt.setFloat(2, descontoItem);
+                                        stmt.setFloat(3, acrescimoItem);
+                                        stmt.setInt(4, produtoId);
+                                        stmt.setInt(5, lastVendaId);
+                                        stmt.execute();
+                                    }
+                                }
+                            }
+                        }
+
+                        // Calcule o total da compra considerando desconto e acréscimo da venda inteira
+                        float totalB = Float.parseFloat(totalBruto.getText());
+                        totalCompra = totalB - descontoTotalVenda + acrescimoTotalVenda;
+
+                        // Atualize a venda
+                        String SQL = "UPDATE venda SET "
+                                + "id_cliente = (SELECT id_cliente FROM cliente INNER JOIN pessoa ON pessoa.id_pessoa = cliente.id_pessoa WHERE nome = ?), "
+                                + "id_atendente = (SELECT id_atendente FROM atendente INNER JOIN pessoa ON pessoa.id_pessoa = atendente.id_pessoa WHERE nome = ?), "
+                                + "valor_total = ?, "
+                                + "desconto = ?, "
+                                + "acrescimo = ?, "
+                                + "situacao = 'P' "
+                                + "WHERE id_venda = ?";
+                        try (PreparedStatement ps = conexaoAtiva.prepareStatement(SQL)) {
+                            ps.setString(1, nomeCliente.getText());
+                            ps.setString(2, nomeAtendente.getText());
+                            ps.setFloat(3, totalCompra);
+                            ps.setFloat(4, descontoTotalVenda);
+                            ps.setFloat(5, acrescimoTotalVenda);
+                            ps.setInt(6, lastVendaId);
+                            ps.execute();
+                            System.out.println("VENDA SALVA");
+                            dispose();
+                        }
+                    }
+                } else {
+                    try (Connection conexao = Conexao.conexaoBanco()) {
+                        String getLastVendaIdSQL = "SELECT id_venda FROM venda ORDER BY id_venda DESC LIMIT 1";
+                        PreparedStatement getLastVendaIdStmt = conexao.prepareStatement(getLastVendaIdSQL);
+                        ResultSet rsVenda = getLastVendaIdStmt.executeQuery();
+                        int lastVendaId = 0;
+                        if (rsVenda.next()) {
+                            lastVendaId = rsVenda.getInt("id_venda");
+                        }
+                        // Atualize a venda
+                        String SQL = "UPDATE venda SET "
+                                + "id_cliente = 8, "
+                                + "id_atendente = 6, "
+                                + "valor_total = null, "
+                                + "desconto = null, "
+                                + "acrescimo = null, "
+                                + "situacao = 'C' "
+                                + "WHERE id_venda = ?";
+                        try (PreparedStatement ps = conexaoAtiva.prepareStatement(SQL)) {
+                            ps.setInt(1, lastVendaId);
+                            ps.execute();
+                            System.out.println("VENDA CANCELADA");
+                            dispose();
+                        }
                     }
                 }
             }
+
+        } catch (SQLException | ClassNotFoundException ex) {
+            Logger.getLogger(Venda.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        // Calcule o total da compra considerando desconto e acréscimo da venda inteira
-        float totalB = Float.parseFloat(totalBruto.getText());
-        totalCompra = totalB - descontoTotalVenda + acrescimoTotalVenda;
 
-        // Atualize a venda
-        String SQL = "UPDATE venda SET "
-                + "id_cliente = (SELECT id_cliente FROM cliente INNER JOIN pessoa ON pessoa.id_pessoa = cliente.id_pessoa WHERE nome = ?), "
-                + "id_atendente = (SELECT id_atendente FROM atendente INNER JOIN pessoa ON pessoa.id_pessoa = atendente.id_pessoa WHERE nome = ?), "
-                + "valor_total = ?, "
-                + "desconto = ?, "
-                + "acrescimo = ? "
-                + "WHERE id_venda = ?";
-        try (PreparedStatement ps = conexaoAtiva.prepareStatement(SQL)) {
-            ps.setString(1, nomeCliente.getText());
-            ps.setString(2, nomeAtendente.getText());
-            ps.setFloat(3, totalCompra);
-            ps.setFloat(4, descontoTotalVenda);
-            ps.setFloat(5, acrescimoTotalVenda);
-            ps.setInt(6, lastVendaId);
-            ps.execute();
-            System.out.println("FIM DA VENDA");
-            dispose();
-        }
-    }
-} catch (SQLException | ClassNotFoundException ex) {
-    Logger.getLogger(Venda.class.getName()).log(Level.SEVERE, null, ex);
-}
-        
-        /* try (Connection conexaoAtiva = Conexao.conexaoBanco()) {
-            // Primeiro, obtenha o último id_venda
-            String getLastVendaIdSQL = "SELECT id_venda FROM venda ORDER BY id_venda DESC LIMIT 1";
-            PreparedStatement getLastVendaIdStmt = conexaoAtiva.prepareStatement(getLastVendaIdSQL);
-            ResultSet rsVenda = getLastVendaIdStmt.executeQuery();
-            int lastVendaId = 0;
-            if (rsVenda.next()) {
-                lastVendaId = rsVenda.getInt("id_venda");
-            }
-
-            // Agora, para cada item na tabelaVenda, obtenha o id_produto e insira o item de venda
-            for (int x = 0; x < tabelaVenda.getRowCount(); x++) {
-                String descricaoProduto = tabelaVenda.getValueAt(x, 0).toString();
-                String getProdutoIdSQL = "SELECT id_produto FROM produto WHERE descricao = ?";
-                PreparedStatement getProdutoIdStmt = conexaoAtiva.prepareStatement(getProdutoIdSQL);
-                getProdutoIdStmt.setString(1, descricaoProduto);
-                ResultSet rsProduto = getProdutoIdStmt.executeQuery();
-                int produtoId = 0;
-                if (rsProduto.next()) {
-                    produtoId = rsProduto.getInt("id_produto");
-                }
-
-                descontoTotal = Float.parseFloat(tabelaVenda.getValueAt(x, 4).toString());
-                acrescimoTotal = Float.parseFloat(tabelaVenda.getValueAt(x, 5).toString());
-                acumuladorItem += descontoTotal + acrescimoTotal;
-
-                String comandoSQL = "INSERT INTO item_venda(quantidade, desconto, acrescimo, id_produto, id_venda) "
-                        + "VALUES (?, ?, ?, ?, ?)";
-                PreparedStatement stmt = conexaoAtiva.prepareStatement(comandoSQL);
-                stmt.setString(1, tabelaVenda.getValueAt(x, 3).toString());
-                stmt.setString(2, String.valueOf(descontoTotal));
-                stmt.setString(3, String.valueOf(acrescimoTotal));
-                stmt.setInt(4, produtoId);
-                stmt.setInt(5, lastVendaId);
-                stmt.execute();
-            }
-
-            if (acumuladorItem == 0) {
-                descontoTotal = Float.parseFloat(desconto.getText());
-                acrescimoTotal = Float.parseFloat(acrescimo.getText());
-                totalCompra = Float.parseFloat(totalBruto.getText()) - descontoTotal - acrescimoTotal;
-
-            } else {
-                totalCompra = 0;
-            }
-
-            // Atualize a venda
-            if (totalCompra > 0) {
-                String SQL = "UPDATE venda SET "
-                        + "id_cliente = (SELECT id_cliente FROM cliente INNER JOIN pessoa ON pessoa.id_pessoa = cliente.id_pessoa WHERE nome = ?), "
-                        + "id_atendente = (SELECT id_atendente FROM atendente INNER JOIN pessoa ON pessoa.id_pessoa = atendente.id_pessoa WHERE nome = ?), "
-                        + "valor_total = ?"
-                        + "WHERE id_venda = ?";
-                PreparedStatement ps = conexaoAtiva.prepareStatement(SQL);
-                ps.setString(1, nomeCliente.getText());
-                ps.setString(2, nomeAtendente.getText());
-                ps.setFloat(3, totalCompra);
-                ps.setInt(4, lastVendaId);
-                ps.execute();
-                System.out.println("FIM DA VENDA");
-                dispose();
-            } else {
-                String SQL = "UPDATE venda SET "
-                        + "id_cliente = (SELECT id_cliente FROM cliente INNER JOIN pessoa ON pessoa.id_pessoa = cliente.id_pessoa WHERE nome = ?), "
-                        + "id_atendente = (SELECT id_atendente FROM atendente INNER JOIN pessoa ON pessoa.id_pessoa = atendente.id_pessoa WHERE nome = ?) "
-                        + "WHERE id_venda = ?";
-                PreparedStatement ps = conexaoAtiva.prepareStatement(SQL);
-                ps.setString(1, nomeCliente.getText());
-                ps.setString(2, nomeAtendente.getText());
-
-                ps.setInt(3, lastVendaId);
-                ps.execute();
-                System.out.println("FIM DA VENDA");
-                dispose();
-            }
-
-        } catch (SQLException ex) {
-            Logger.getLogger(Venda.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Venda.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
     }//GEN-LAST:event_confirmarVendaMouseClicked
 
     private void clientePesquisarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_clientePesquisarKeyPressed
@@ -844,11 +892,31 @@ public class Venda extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_nomeVendedorActionPerformed
     private void recalcularTotalBruto() {
         float acumulador = 0f; // Inicializa o acumulador com 0
-        for (int x = 0; x < tabelaVenda.getRowCount(); x++) { // Percorre as linhas da tabela, começando da segunda linha
-            Float precoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString()); // Obtém o preço da coluna 1 e converte para Float
-            Float quantidadeLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString()); // Obtém a quantidade da coluna 3 e converte para Float
-            acumulador += precoLoop * quantidadeLoop; // Multiplica preço pela quantidade e adiciona ao acumulador
+        for (int x = 0; x < tabelaVenda.getRowCount(); x++) { // Percorre as linhas da tabela
+            Float precoLoop = 0f;
+            Float quantidadeLoop = 0f;
+            Float acrescimoLoop = 0f;
+            Float descontoLoop = 0f;
+
+            // Verifica se o valor é null antes de converter para Float
+            if (tabelaVenda.getValueAt(x, 1) != null) {
+                precoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString());
+            }
+            if (tabelaVenda.getValueAt(x, 3) != null) {
+                quantidadeLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString());
+            }
+            if (tabelaVenda.getValueAt(x, 4) != null) {
+                acrescimoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 4).toString());
+            }
+            if (tabelaVenda.getValueAt(x, 5) != null) {
+                descontoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 5).toString());
+            }
+
+            // Calcula o total para a linha atual
+            Float total = (quantidadeLoop * precoLoop) - descontoLoop + acrescimoLoop;
+            acumulador += total; // Adiciona ao acumulador
         }
+
         totalBruto.setText(String.valueOf(acumulador)); // Define o texto de totalBruto com o valor acumulado
     }
 
@@ -863,27 +931,68 @@ public class Venda extends javax.swing.JInternalFrame {
     private void cancelarItemMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancelarItemMouseClicked
         tabela = (DefaultTableModel) tabelaVenda.getModel();
         tabela.removeRow(tabelaVenda.getSelectedRow());
+        recalcularTotalBruto();
 
     }//GEN-LAST:event_cancelarItemMouseClicked
+
+    private void btAtualizarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btAtualizarMouseClicked
+        recalcularTotalItem();
+        recalcularTotalBruto();
+    }//GEN-LAST:event_btAtualizarMouseClicked
+
+    private void tabelaVendaPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_tabelaVendaPropertyChange
+        recalcularTotalItem();
+        recalcularTotalBruto();
+    }//GEN-LAST:event_tabelaVendaPropertyChange
     private void recalcularTotalItem() {
         tabela2 = (DefaultTableModel) tabelaVenda.getModel();
+        acumulador = 0f; // Inicializar acumulador
+
         for (int x = 0; x < tabelaVenda.getRowCount(); x++) {
-            try {
-                Float acrescimoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 4).toString());
-                Float quantidadeLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString());
-                Float precoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString());
-                Float descontoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 5).toString());
-                Float total = (quantidadeLoop * precoLoop) - descontoLoop + acrescimoLoop;
-                tabela2.setValueAt(total, x, 6);
-                System.out.println("Linha " + x + ": Total calculado = " + total);
-            } catch (NumberFormatException e) {
-                System.out.println("Erro ao converter valor para número na linha " + x + ": " + e.getMessage());
+            // Inicialização das variáveis
+            Float precoLoop = 0f;
+            Float quantidadeLoop = 0f;
+            Float acrescimoLoop = 0f;
+            Float descontoLoop = 0f;
+
+            // Verifica se o valor da coluna 1 é null
+            if (tabelaVenda.getValueAt(x, 1) == null) {
+                tabelaVenda.setValueAt("0", x, 1);
+            } else {
+                precoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 1).toString());
             }
+
+            // Verifica se o valor da coluna 3 é null
+            if (tabelaVenda.getValueAt(x, 3) == null) {
+                tabelaVenda.setValueAt("0", x, 3);
+            } else {
+                quantidadeLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 3).toString());
+            }
+
+            // Verifica se o valor da coluna 4 é null
+            if (tabelaVenda.getValueAt(x, 4) == null) {
+                tabelaVenda.setValueAt("0", x, 4);
+            } else {
+                acrescimoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 4).toString());
+            }
+
+            // Verifica se o valor da coluna 5 é null
+            if (tabelaVenda.getValueAt(x, 5) == null) {
+                tabelaVenda.setValueAt("0", x, 5);
+            } else {
+                descontoLoop = Float.parseFloat(tabelaVenda.getValueAt(x, 5).toString());
+            }
+
+            // Calcula o total para a linha atual
+            Float total = (quantidadeLoop * precoLoop) - descontoLoop + acrescimoLoop;
+            acumulador += total; // Adiciona ao acumulador
+            tabelaVenda.setValueAt(total, x, 6);
         }
 
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField acrescimo;
+    private javax.swing.JButton btAtualizar;
     private javax.swing.JTextField campoPesquisar;
     private javax.swing.JButton cancelarItem;
     private javax.swing.JButton cancelarVenda;

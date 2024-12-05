@@ -33,6 +33,7 @@ public class PaginaInicial extends javax.swing.JFrame {
         painel = new javax.swing.JDesktopPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
+        cadastroPessoa = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         adicionar = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
@@ -52,6 +53,15 @@ public class PaginaInicial extends javax.swing.JFrame {
         );
 
         jMenu1.setText("Cadastro");
+
+        cadastroPessoa.setText("Pessoa");
+        cadastroPessoa.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cadastroPessoaMouseClicked(evt);
+            }
+        });
+        jMenu1.add(cadastroPessoa);
+
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Categorias");
@@ -113,6 +123,12 @@ public class PaginaInicial extends javax.swing.JFrame {
         v.setVisible(true);
     }//GEN-LAST:event_compraActionPerformed
 
+    private void cadastroPessoaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cadastroPessoaMouseClicked
+        cliente_atendente ca  = new cliente_atendente();
+        
+        ca.setVisible(true);
+    }//GEN-LAST:event_cadastroPessoaMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -150,6 +166,7 @@ public class PaginaInicial extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem adicionar;
+    private javax.swing.JMenuItem cadastroPessoa;
     private javax.swing.JMenuItem compra;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
