@@ -14,6 +14,7 @@ public class Conexao {
     public static Connection conexao(){
         try{
             Class.forName(DRIVER);
+            System.out.println("Conexão concluída");
             return DriverManager.getConnection(URL, USER, PASS);
         }catch(SQLException e){
            System.out.println("ERRO NA CONEXÃO DO BANCO DE DADOS: " + e.getMessage());
@@ -25,7 +26,7 @@ public class Conexao {
         catch(Exception e){
             System.out.println("OCORREU UM ERRO INESPERADO");
         }
-        System.out.println("Conexão concluída");
+        
         return null;
     }
     public static void main(String []args){
