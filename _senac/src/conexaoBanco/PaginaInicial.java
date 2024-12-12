@@ -38,6 +38,7 @@ public class PaginaInicial extends javax.swing.JFrame {
         adicionar = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         compra = new javax.swing.JMenuItem();
+        jMenu4 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -88,6 +89,14 @@ public class PaginaInicial extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu3);
 
+        jMenu4.setText("jMenu4");
+        jMenu4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenu4MouseClicked(evt);
+            }
+        });
+        jMenuBar1.add(jMenu4);
+
         setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -105,7 +114,7 @@ public class PaginaInicial extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void adicionarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_adicionarActionPerformed
-        Categoria c = null;
+        /*Categoria c = null;
         try {
             c = new Categoria();
         } catch (SQLException ex) {
@@ -114,13 +123,13 @@ public class PaginaInicial extends javax.swing.JFrame {
             Logger.getLogger(PaginaInicial.class.getName()).log(Level.SEVERE, null, ex);
         }
         painel.add(c);
-        c.setVisible(true);
+        c.setVisible(true);*/
     }//GEN-LAST:event_adicionarActionPerformed
 
     private void compraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compraActionPerformed
-        Venda v = new Venda();
+        /*Venda v = new Venda();
         painel.add(v);
-        v.setVisible(true);
+        v.setVisible(true);*/
     }//GEN-LAST:event_compraActionPerformed
 
     private void cadastroPessoaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cadastroPessoaMouseClicked
@@ -128,6 +137,12 @@ public class PaginaInicial extends javax.swing.JFrame {
         
         ca.setVisible(true);
     }//GEN-LAST:event_cadastroPessoaMouseClicked
+
+    private void jMenu4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu4MouseClicked
+         Emprestimo e = new Emprestimo();
+          painel.add(e);
+        e.setVisible(true);
+    }//GEN-LAST:event_jMenu4MouseClicked
 
     /**
      * @param args the command line arguments
@@ -171,6 +186,7 @@ public class PaginaInicial extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JDesktopPane painel;
     // End of variables declaration//GEN-END:variables
