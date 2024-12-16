@@ -7,9 +7,9 @@ import java.util.logging.Logger;
 
 public class Conexao {
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String URL = "jdbc:mysql://localhost:3306/kaua_sistema_biblioteca";
+    private static final String URL = "jdbc:mysql://localhost:3307/kaua_sistema_biblioteca";
     private static final String USER = "root";
-    private static final String PASS = "SUASENHA";
+    private static final String PASS = "senac";
     
     public static Connection conexao(){
         try{
