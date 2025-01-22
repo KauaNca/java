@@ -1,0 +1,16 @@
+CardLayout -> pelo que entendi, utilizando-o é possível fazer com vários paineis com 
+diferentes estruturas possam ficar alternando pois estão armazendo dentro dele.
+Em um momento, há uma determinada "tela", no outro, outra "tela".
+Ao invés de fazer outro frame aparecer ao clicar numa opção de menu, o CardLayout faz tudo isso
+sem abrir um.
+
+Organiza os componentes em um contêiner como se fossem cartas de baralho empilhadas umas sobre as outras. 
+Apenas uma "carta" (ou componente) é visível por vez, e você pode alternar entre elas programaticamente.
+
+Características do CardLayout:
+Empilhamento de Componentes: Cada componente adicionado ao contêiner é tratado como uma "carta" em um baralho.
+Alternância de Cartas: Você pode alternar entre os componentes exibidos usando métodos do CardLayout.
+Ideal para Interfaces Multitelas: É frequentemente usado para criar interfaces com várias telas, 
+como assistentes de configuração (wizards) ou aplicações onde diferentes painéis precisam ser exibidos em momentos diferentes.
+
+
