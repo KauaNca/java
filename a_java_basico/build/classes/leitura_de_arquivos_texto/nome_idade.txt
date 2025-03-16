@@ -1,6 +1,0 @@
-nome,idade
-Kauã,21,
-Lum,18,
-Andressa,15,
-Bali,28,
-André,31
